@@ -1,0 +1,9 @@
+models/
+__pycache__/
+*.pyc
+*.wav
+*.mp4
+*.mov
+*.MOV
+*.npy
+최종본검사/

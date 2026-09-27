@@ -1,0 +1,6 @@
+# lecture-cut 의 requirements.txt 도 함께 설치한다(pycapcut 등)
+numpy
+pillow
+onnxruntime
+# 받아 적기(오프닝 테이크 고르기, 최종본 워터마크 검사). 없으면 그 단계만 건너뛴다
+faster-whisper

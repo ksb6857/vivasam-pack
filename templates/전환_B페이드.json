@@ -1,0 +1,22 @@
+{
+ "_출처": "선생님이 캡컷에서 넣은 전환(2026-09)",
+ "material": {
+  "id": "589ABB89-B8CA-44AD-BAC6-0F75BB21F540",
+  "type": "transition",
+  "name": "B 페이드",
+  "effect_id": "6724239388189921806",
+  "resource_id": "6724239388189921806",
+  "third_resource_id": "6724239388189921806",
+  "source_platform": 1,
+  "path": "{LOCALAPPDATA}/CapCut/User Data/Cache/effect/6724239388189921806/3bca53e9f3dfa2c184fbee96438ea097",
+  "duration": 466666,
+  "is_overlap": false,
+  "platform": "all",
+  "category_id": "2037709434",
+  "category_name": "기본형",
+  "request_id": "202609092002452799FCD5F259CE22030C",
+  "is_ai_transition": false,
+  "video_path": "",
+  "task_id": ""
+ }
+}
