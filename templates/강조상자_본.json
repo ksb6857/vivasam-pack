@@ -1,0 +1,255 @@
+{
+ "_출처": "사람이 캡컷에서 그린 강조 사각형 하나와 그 애니메이션(페이드 인·아웃)",
+ "materials": {
+  "shapes": [
+   {
+    "id": "A64E6E44-B9BB-4564-A86E-79A87DF9048D",
+    "type": "shape",
+    "shape_type": 4,
+    "roundness": [
+     5.0,
+     5.0,
+     5.0,
+     5.0
+    ],
+    "custom_points": [
+     -161.37941919191917,
+     13.218118686868689,
+     161.37941919191917,
+     13.218118686868689,
+     161.37941919191917,
+     -13.218118686868689,
+     -161.37941919191917,
+     -13.218118686868689
+    ],
+    "shape_size": [
+     322.75883838383834,
+     26.436237373737377
+    ],
+    "global_alpha": 1.0,
+    "color": "",
+    "border_line_style": 0,
+    "border_width": 4.0,
+    "border_color": "#ab0000",
+    "shadow_color": "#000000",
+    "shadow_alpha": 0.5,
+    "shadow_distance": 10.0,
+    "shadow_angle": 45.0,
+    "check_flag": 97,
+    "name": "rect_item",
+    "combo_info": {
+     "text_templates": []
+    },
+    "shape_scale": [],
+    "custom_points_in": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "custom_points_out": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "border_alpha": 1.0,
+    "shadow_ambiguity": 0.0,
+    "endpoint_left_style": 0,
+    "endpoint_right_style": 0,
+    "line_style": 0,
+    "fill_render_style": {
+     "color": {
+      "solid": {
+       "color": "#cab2b2",
+       "alpha": 1.0
+      },
+      "gradient": {
+       "color": [
+        "#CCCCCC",
+        "#CCCCCC",
+        "#CCCCCC"
+       ],
+       "alpha": [
+        1.0,
+        1.0,
+        1.0
+       ],
+       "percent": [
+        0.0,
+        0.5,
+        1.0
+       ],
+       "angle": 0.0,
+       "mode": "all",
+       "style": "linear"
+      },
+      "texture": {
+       "path": "",
+       "flip": [],
+       "scale": 1.0,
+       "alpha": 1.0,
+       "angle": 0.0,
+       "blend": "no",
+       "range": 0,
+       "fill": "tile",
+       "resource_id": "",
+       "effect_id": "",
+       "play_speed": 1.0
+      },
+      "render_type": "solid"
+     },
+     "alpha": 1.0
+    },
+    "constant_material_id": ""
+   }
+  ],
+  "material_animations": [
+   {
+    "id": "C3F29880-D823-4733-977B-5D92A1EDFDAA",
+    "type": "sticker_animation",
+    "animations": [
+     {
+      "id": "",
+      "type": "in",
+      "start": 0,
+      "duration": 1000000,
+      "path": "C:/Users/USER/AppData/Local/CapCut/User Data/Cache/effect/7179946674280731137/c085078da406fe5db026d6f6dd238552",
+      "platform": "all",
+      "resource_id": "7179946674280731137",
+      "third_resource_id": "7179946674280731137",
+      "source_platform": 1,
+      "name": "페이드 인",
+      "category_id": "",
+      "category_name": "",
+      "panel": "",
+      "material_type": "sticker",
+      "anim_adjust_params": null,
+      "request_id": ""
+     },
+     {
+      "id": "",
+      "type": "out",
+      "start": 0,
+      "duration": 500000,
+      "path": "C:/Users/USER/AppData/Local/CapCut/User Data/Cache/effect/7179946890429993473/6bc58cd24c5a074d5e16d53e46db32f2",
+      "platform": "all",
+      "resource_id": "7179946890429993473",
+      "third_resource_id": "7179946890429993473",
+      "source_platform": 1,
+      "name": "페이드 아웃",
+      "category_id": "",
+      "category_name": "",
+      "panel": "",
+      "material_type": "sticker",
+      "anim_adjust_params": null,
+      "request_id": ""
+     }
+    ],
+    "multi_language_current": "none"
+   }
+  ]
+ },
+ "tracks": [
+  {
+   "type": "sticker",
+   "name": "lecture_autocut_highlights",
+   "segments": [
+    {
+     "id": "A1129A66-A6F0-4DB5-8E40-4743FBB2E823",
+     "source_timerange": null,
+     "target_timerange": {
+      "start": 195933333,
+      "duration": 4900000
+     },
+     "render_timerange": {
+      "start": 0,
+      "duration": 0
+     },
+     "desc": "",
+     "state": 0,
+     "speed": 1.0,
+     "is_loop": false,
+     "is_tone_modify": false,
+     "reverse": false,
+     "intensifies_audio": false,
+     "cartoon": false,
+     "volume": 1.0,
+     "last_nonzero_volume": 1.0,
+     "clip": {
+      "scale": {
+       "x": 0.96,
+       "y": 0.96
+      },
+      "rotation": 0.0,
+      "transform": {
+       "x": -0.4114583333333333,
+       "y": -0.18055555555555555
+      },
+      "flip": {
+       "vertical": false,
+       "horizontal": false
+      },
+      "alpha": 1.0
+     },
+     "uniform_scale": {
+      "on": true,
+      "value": 1.0
+     },
+     "material_id": "A64E6E44-B9BB-4564-A86E-79A87DF9048D",
+     "extra_material_refs": [
+      "C3F29880-D823-4733-977B-5D92A1EDFDAA"
+     ],
+     "render_index": 14000,
+     "keyframe_refs": [],
+     "enable_lut": false,
+     "enable_adjust": false,
+     "enable_hsl": false,
+     "visible": true,
+     "group_id": "",
+     "enable_color_curves": true,
+     "enable_hsl_curves": true,
+     "track_render_index": 4,
+     "hdr_settings": null,
+     "hdr_vivid_settings": null,
+     "enable_color_wheels": true,
+     "track_attribute": 0,
+     "is_placeholder": false,
+     "template_id": "",
+     "enable_smart_color_adjust": false,
+     "template_scene": "default",
+     "common_keyframes": [],
+     "caption_info": null,
+     "responsive_layout": {
+      "enable": false,
+      "target_follow": "",
+      "size_layout": 0,
+      "horizontal_pos_layout": 0,
+      "vertical_pos_layout": 0
+     },
+     "enable_color_match_adjust": false,
+     "enable_color_correct_adjust": false,
+     "enable_adjust_mask": false,
+     "raw_segment_id": "",
+     "lyric_keyframes": null,
+     "enable_video_mask": true,
+     "digital_human_template_group_id": "",
+     "color_correct_alg_result": "",
+     "source": "segmentsourcenormal",
+     "enable_mask_stroke": false,
+     "enable_mask_shadow": false,
+     "enable_color_adjust_pro": false,
+     "segment_color_tag": ""
+    }
+   ]
+  }
+ ]
+}

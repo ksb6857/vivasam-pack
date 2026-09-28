@@ -49,7 +49,10 @@ def mindex(d):
 
 
 def load(name):
-    """드래프트 본문 사본들(뿌리·Timelines, 하위 프로젝트 제외)과 그 내용."""
+    """드래프트 본문 사본들(뿌리·Timelines, 하위 프로젝트 제외)과 그 내용. draft_content.json 경로를 주면 그 파일만(읽기용)."""
+    if str(name).endswith(".json") and Path(win(name)).is_file():
+        f = Path(win(name))
+        return [f], json.loads(f.read_text(encoding="utf-8"))
     fs = contents(resolve(name))
     if not fs:
         raise SystemExit(f"{name}: draft_content.json 이 없다")

@@ -13,8 +13,11 @@
   python tools/소리.py 목소리넣기 <드래프트> <보정본.wav> [--찾기 10] [--dry]   --찾기: 보정본이 앞뒤로 밀렸을 수 있는 초
   python tools/소리.py 맞춤검사 <드래프트>                          보정 목소리가 원래 녹음과 몇 ms 어긋나는지(읽기만)
   python tools/소리.py 음소거 <드래프트> [--dry]                    영상 클립 소리만 끈다(인트로 클립은 그대로)
-  python tools/소리.py 배경음악 <드래프트> <bgm.wav> --구간 30.6-70.6,308.4-315.2 [--음량 0.37] [--dry]
+  python tools/소리.py 배경음악 <드래프트> <bgm.wav> --구간 30.6-70.6,308.4-315.2 [--차이 13] [--음량 직접] [--dry]
+                                                                    음량을 안 주면 보정 낭독보다 13 LU 작게 계산한다
                                                                     표지·학습 목표·학습 내용·간지 구간에 배경음악
+  python tools/소리.py 오포닉 <보정 전 목소리.wav> <보정본.wav>   (선택) 오포닉 API 로 보정. 각자 키, 크레딧을 쓴다
+  python tools/소리.py 오포닉확인                                  키가 맞는지, 남은 크레딧(무료 호출)
   python tools/소리.py 음악맞춤 <비바샘 제공 BGM> <출력.wav>          배경음악 크기를 −21.4 LUFS 로 맞춘다(003·배경음악용)
 """
 import copy
@@ -231,9 +234,30 @@ def cmd_목소리넣기(name, wav, dry, search=10.0):
     save(name, fs, d, "보정목소리넣기_전")
 
 
-def cmd_배경음악(name, bgm, spans, vol, dry):
+def _lufs(path, a=None, d=None):
+    import re
+    cmd = ["ffmpeg", "-hide_banner", "-nostats"] + (["-ss", f"{a}", "-t", f"{d}"] if a is not None else []) +           ["-i", win(path), "-vn", "-af", "ebur128", "-f", "null", "-"]
+    e = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace").stderr
+    m = re.search(r"I:\s+(-?[\d.]+) LUFS", e[e.rfind("Summary:"):])
+    return float(m.group(1)) if m else None
+
+
+BGM_GAP = 13.0     # 보정 낭독보다 이만큼 작게. 네 차시 최종본(선생님 판)이 12~14 LU 였다
+
+
+def cmd_배경음악(name, bgm, spans, vol, dry, gap=BGM_GAP):
     bgm = win(bgm)
     fs, d = load(name)
+    idx = mindex(d)
+    if vol is None:
+        voice = None
+        tr = next((t for t in d["tracks"] if t.get("name") == VOICE_TRACK and t["segments"]), None)
+        if tr:
+            voice = _lufs(idx[tr["segments"][0]["material_id"]][1]["path"])
+        voice = voice if voice is not None else -16.0
+        b = _lufs(bgm)
+        vol = round(10 ** ((voice - gap - b) / 20), 3)
+        print(f"낭독 {voice:.1f} LUFS · BGM 파일 {b:.1f} LUFS → BGM {voice - gap:.1f} LUFS 가 되게 음량 {vol}")
     tr = _audio_track(d, BGM_TRACK)
     blen = duration_us(bgm)
     n = 0
@@ -253,6 +277,82 @@ def cmd_음악맞춤(src, out, target=-21.4):
     print(f"{out}: {target} LUFS 로 맞췄다")
 
 
+
+# ── 오포닉 API (선택) ────────────────────────────────
+AUPHONIC = "https://auphonic.com/api/"
+AUPHONIC_ALGO = {   # 선생님 판(2026-09-27)과 같은 값: Voice Cleaner · Remove Breath · 자동 EQ · 레벨러 · −16 LUFS
+    "filtering": True, "filtermethod": "autoeq", "leveler": True, "levelermode": "default", "compressor_speech": "auto",
+    "compressor_music": "off", "levelerstrength_speech": 100, "levelerstrength_music": 0, "msclassifier": "on",
+    "normloudness": True, "loudnesstarget": -16, "maxpeak": 99.0, "loudnessmethod": "program",
+    "denoise": True, "denoisemethod": "dynamic", "denoiseamount": 6, "deverbamount": -1, "debreathamount": 12,
+    "cutter": False, "silence_cutter": False, "filler_cutter": False, "cough_cutter": False, "music_cutter": False}
+
+
+def _auphonic_key():
+    import os
+    import re
+    k = os.environ.get("AUPHONIC_API_KEY")
+    if not k:
+        f = Path(os.environ.get("AUPHONIC_KEY_FILE") or (Path.home() / ".auphonic.key"))
+        if f.exists():
+            m = re.findall(r"(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{24,}(?![A-Za-z0-9_-])", f.read_text(encoding="utf-8-sig"))
+            k = m[0] if len(m) == 1 else None
+    if not k:
+        raise SystemExit("오포닉 API 키가 없다. 환경변수 AUPHONIC_API_KEY 나 ~/.auphonic.key 파일에 둔다(값을 채팅에 붙여 넣지 않는다)")
+    return k
+
+
+def _aph(method, path, key, data=None, ctype=None, raw=False):
+    import urllib.error
+    import urllib.request
+    h = {"Authorization": "Bearer " + key}
+    if ctype:
+        h["Content-Type"] = ctype
+    req = urllib.request.Request(path if path.startswith("http") else AUPHONIC + path, data=data, method=method, headers=h)
+    try:
+        with urllib.request.urlopen(req, timeout=900) as r:
+            return r.read() if raw else json.load(r)
+    except urllib.error.HTTPError as e:
+        raise SystemExit(f"오포닉 응답 {e.code} ({path.split('?')[0]})") from None
+
+
+def cmd_오포닉확인():
+    j = _aph("GET", "user.json", _auphonic_key())["data"]
+    print(f"오포닉 키 확인됨 · 남은 크레딧 {j.get('credits')}시간")
+
+
+def cmd_오포닉(inp, out):
+    """보정 전 목소리 wav 를 오포닉에 올려 선생님 판과 같은 설정으로 보정하고 받는다. 크레딧을 쓴다."""
+    import time
+    import uuid as _u
+    key = _auphonic_key()
+    inp, out = win(inp), win(out)
+    body = json.dumps({"metadata": {"title": Path(inp).stem}, "algorithms": AUPHONIC_ALGO,
+                       "output_files": [{"format": "wav-24bit", "mono_mixdown": True}]}).encode()
+    uid = _aph("POST", "productions.json", key, body, "application/json")["data"]["uuid"]
+    b = _u.uuid4().hex
+    data = (f"--{b}\r\nContent-Disposition: form-data; name=\"input_file\"; filename=\"{Path(inp).name}\"\r\n"
+            f"Content-Type: audio/wav\r\n\r\n").encode() + Path(inp).read_bytes() + f"\r\n--{b}--\r\n".encode()
+    print(f"올리는 중 ({len(data) / 1e6:.0f}MB) · 작업 {uid}")
+    _aph("POST", f"production/{uid}/upload.json", key, data, f"multipart/form-data; boundary={b}")
+    _aph("POST", f"production/{uid}/start.json", key, b"", "application/json")
+    t0 = time.time()
+    while True:
+        j = _aph("GET", f"production/{uid}.json", key)["data"]
+        if j.get("status") == 3:
+            break
+        if j.get("status") == 2:
+            raise SystemExit(f"오포닉 처리 오류: {j.get('error_message') or j.get('status_string')}")
+        if time.time() - t0 > 3600:
+            raise SystemExit("한 시간이 지나도 끝나지 않았다")
+        time.sleep(15)
+    url = j["output_files"][0]["download_url"]
+    Path(out).write_bytes(_aph("GET", url, key, raw=True))
+    st = (j.get("statistics") or {}).get("levels", {}).get("output", {})
+    print(f"받았다: {out} · 출력 {st.get('loudness')} · 쓴 크레딧 {j.get('used_credits')}")
+    print("오포닉 API 로 처리하면 워터마크가 붙지 않는다(유료 크레딧). 그래도 목소리넣기가 보정본에만 있는 소리를 찾는다")
+
+
 def _opt(a, k, default=None):
     return a[a.index(k) + 1] if k in a else default
 
@@ -268,7 +368,12 @@ if __name__ == "__main__":
     elif a[0] == "음소거":
         cmd_음소거(a[1], "--dry" in a)
     elif a[0] == "배경음악":
-        cmd_배경음악(a[1], a[2], _opt(a, "--구간"), float(_opt(a, "--음량", 0.37)), "--dry" in a)
+        v = _opt(a, "--음량")
+        cmd_배경음악(a[1], a[2], _opt(a, "--구간"), float(v) if v else None, "--dry" in a, float(_opt(a, "--차이", BGM_GAP)))
+    elif a[0] == "오포닉확인":
+        cmd_오포닉확인()
+    elif a[0] == "오포닉":
+        cmd_오포닉(a[1], a[2])
     elif a[0] == "음악맞춤":
         cmd_음악맞춤(a[1], a[2])
     else:

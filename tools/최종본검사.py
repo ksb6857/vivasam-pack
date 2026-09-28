@@ -133,7 +133,8 @@ def spans_from_draft(name):
     tr = next((t for t in d["tracks"] if t.get("name") == "인트로 말자막" and t["segments"]), None)
     open_end = None
     if tr:
-        last = max(s["target_timerange"]["start"] + s["target_timerange"]["duration"] for s in tr["segments"]) / US
+        early = [s for s in tr["segments"] if s["target_timerange"]["start"] < 150 * US]   # 뒤쪽 지도 Tip 은 오프닝이 아니다
+        last = max(s["target_timerange"]["start"] + s["target_timerange"]["duration"] for s in (early or tr["segments"])) / US
         c = next((s for s in v if s["target_timerange"]["start"] / US <= last - 0.01 <
                   (s["target_timerange"]["start"] + s["target_timerange"]["duration"]) / US), None)
         open_end = (c["target_timerange"]["start"] + c["target_timerange"]["duration"]) / US if c else last
@@ -247,6 +248,19 @@ def main(a):
         open_end = (max(early) + 1.0) if early else intro_end
     body = [h for h in hits if h > open_end + 0.5]
     rep += ["## 구간", "", f"- 인트로 0~{intro_end:.1f}초 · 오프닝 {intro_end:.1f}~{open_end:.1f}초 · 본편 {open_end:.1f}~{D:.1f}초", ""]
+
+    # 표지: 오프닝 바로 뒤 화면과 끝 화면이 같은 표지 모양인가
+    fb = gray(p1, max(0, D - 1.0))
+    cands = [gray(p1, open_end + k) for k in (1, 2, 3, 4, 5, 6, 7)]      # 표지가 나타나는 중일 수 있어 여러 곳
+    cands = [c for c in cands if c is not None]
+    if cands and fb is not None:
+        diff = min(float(np.abs(c - fb).mean()) for c in cands)
+        rep += ["## 표지", ""]
+        if diff < 16:
+            rep.append(f"- 오프닝 뒤 화면과 끝 화면이 같은 모양이다(차 {diff:.1f}). 앞 표지와 끝 표지가 있다고 본다. 차시명 글자는 그림으로 확인")
+        else:
+            rep.append(f"- ⚠ 오프닝 뒤 화면과 끝 화면이 다르다(차 {diff:.1f}). 앞 표지(오프닝 뒤)나 끝 표지(마무리)가 빠졌을 수 있다. 앞·끝 그림으로 확인")
+        rep.append("")
 
     # 음량
     li = lufs(p1)

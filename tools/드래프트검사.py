@@ -44,6 +44,11 @@ def check(name):
                 mis[x] = mis.get(x, 0) + 1
         (bad if mis else ok).append(f"말자막 {len(tr['segments'])}줄 서식 " + ("맞음" if not mis else "다름: " + " · ".join(f"{k}({n}줄)" for k, n in mis.items())))
         import json
+        long_lines = [json.loads(idx[s["material_id"]][1]["content"])["text"] for s in tr["segments"] if s["target_timerange"]["start"] < 150 * US]
+        long_lines = [x for x in long_lines if len(x.splitlines()) > 1 or len(x.replace(" ", "")) > 25 or len(x) > 28]
+        if long_lines:
+            warn.append(f"말자막 {len(long_lines)}줄이 두 줄이거나 25자를 넘는다(가급적 한 줄 25자 안, 길면 두 번에 나눈다): "
+                        + " / ".join("「" + " ".join(x.split())[:30] + "」" for x in long_lines[:3]))
         late = [(s["target_timerange"]["start"] / US, " ".join(json.loads(idx[s["material_id"]][1]["content"])["text"].split()))
                 for s in tr["segments"] if s["target_timerange"]["start"] > 150 * US]
         if late:
